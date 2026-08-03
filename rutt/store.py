@@ -325,6 +325,21 @@ class Rutt:
         ).fetchone()
         return dict(row)
 
+    def max_id(self, table: str) -> int:
+        if table not in ("probes", "scans", "findings", "hosts"):
+            raise ValueError("bad table")
+        row = self.conn.execute(f"SELECT COALESCE(MAX(id), 0) AS m FROM {table}").fetchone()
+        return int(row["m"])
+
+    def rows_after(self, table: str, after_id: int, limit: int = 1000) -> list[dict]:
+        """Rows with id greater than ``after_id``, oldest first. For tailing."""
+        if table not in ("probes", "scans", "findings", "hosts"):
+            raise ValueError("bad table")
+        return self.conn.execute(
+            f"SELECT * FROM {table} WHERE id > %s ORDER BY id ASC LIMIT %s",
+            (after_id, limit),
+        ).fetchall()
+
     def read_sql(self, query: str, limit: int = 500) -> list[dict]:
         q = query.strip().rstrip(";")
         low = q.lower()

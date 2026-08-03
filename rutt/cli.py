@@ -92,6 +92,12 @@ def build_parser() -> argparse.ArgumentParser:
     _add_dsn(sp)
     sp.add_argument("query"); sp.add_argument("--json", action="store_true")
 
+    sp = sub.add_parser("tail", help="stream new probes as JSON, like tail -f")
+    _add_dsn(sp)
+    sp.add_argument("--scans", action="store_true", help="tail the scan log instead of probes")
+    sp.add_argument("--all", action="store_true", help="start from the beginning, not just new rows")
+    sp.add_argument("--interval", type=float, default=1.0, help="poll seconds (default 1)")
+
     return p
 
 
@@ -256,6 +262,22 @@ def main(argv=None) -> int:
             with _open(args) as q:
                 rows = q.read_sql(args.query)
             _emit(rows, args.json)
+            return 0
+
+        if args.cmd == "tail":
+            import time
+            table = "scans" if args.scans else "probes"
+            with _open(args) as q:
+                last = 0 if args.all else q.max_id(table)
+                try:
+                    while True:
+                        for row in q.rows_after(table, last):
+                            last = row["id"]
+                            print(json.dumps({k: _serial(v) for k, v in row.items()},
+                                             ensure_ascii=False), flush=True)
+                        time.sleep(args.interval)
+                except KeyboardInterrupt:
+                    return 0
             return 0
 
     except (ValueError, json.JSONDecodeError) as exc:

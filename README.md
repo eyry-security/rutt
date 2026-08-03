@@ -68,6 +68,13 @@ rutt findings --severity high
 rutt stats
 ```
 
+Or watch results stream in live as the pipeline probes them:
+
+```sh
+rutt tail            # new probes, one JSON object per line (pipe to jq if you like)
+rutt tail --scans    # or the raw discover/probe/review event log
+```
+
 ## CLI
 
 | Command | What it does |
@@ -84,6 +91,7 @@ rutt stats
 | `rutt findings` | Query findings (`--host --severity --source`) |
 | `rutt scans` | The scan log (`--host --kind discover\|probe\|review --tool`) |
 | `rutt sql "<SELECT>"` | Run a read-only query (SELECT/WITH only) |
+| `rutt tail` | Stream new probes as JSON, like `tail -f` (`--scans`, `--all`, `--interval`) |
 | `rutt stats` | Row counts + lifecycle breakdown |
 
 Every query takes `--limit` and `--json` (JSONL out; the default is a table).
