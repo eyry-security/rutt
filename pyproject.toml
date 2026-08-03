@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rutt"
+version = "0.1.0"
+description = "A Postgres-backed store for recon data, with a CLI and library. The logbook of the Eyry recon suite."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Eyry", email = "hello@eyry.io" }]
+keywords = ["recon", "postgres", "bugbounty", "attack-surface", "asset-inventory", "security"]
+dependencies = [
+    "psycopg[binary]>=3.1",
+]
+
+[project.urls]
+Homepage = "https://eyry.io"
+Repository = "https://github.com/eyry-security/rutt"
+
+[project.scripts]
+rutt = "rutt.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rutt*"]
